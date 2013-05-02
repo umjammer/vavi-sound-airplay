@@ -1,4 +1,4 @@
-# RPlay v0.01a
+# RPlay v0.03
 
 Benjamin de Callatay <bencall@hotmail.com><br/>
 April 22, 2011
@@ -26,12 +26,17 @@ These libraries are included in RPlay:
  * http://commons.apache.org/
  * https://github.com/albertz/shairport
  * https://github.com/soiaf/Java-Apple-Lossless-decoder
+ * http://jmdns.sourceforge.net
 
 ## Contributors
 
  * [David Hammerton]
  * [James Laird]
  * [soiaf]
+ * [adeward] (https://github.com/adeward)
+ * [jblezoray] (https://github.com/jblezoray)
+ * [Maik Schulz] for Mac OS X bundle (now obsolete)
+ * [csholmq]
  * Everyone who has helped with shairport, the alac decoder (or the java port of it), apache commons lib or bouncycastle lib (see their README)
 
 ## Changelog
@@ -40,6 +45,9 @@ These libraries are included in RPlay:
     * initial release: able to communicate with iTunes (RTSP server ok)
  * 0.01b  May 01, 2011
     * First working version. Still buggy. Usable.   
- * 0.01   May 06, 2011
+ * 0.01c   May 06, 2011
     * First binary version. Need feedback.
-
+ * 0.02    April 29, 2013
+    * Fixed auto-startup and enabled RPlayNoGui.jar.
+ * 0.03    May 2, 2013
+    * Added password support. Also replaced mDNSResponder with JmDNS.
