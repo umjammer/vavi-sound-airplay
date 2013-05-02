@@ -6,7 +6,7 @@ package vavi.apps.rplay;
  */
 
 //
-public class Rplay{
+public class RPlay{
 
 	/**
 	 * @param args

@@ -1,6 +1,8 @@
 package vavi.apps.rplay;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.JmmDNS;
@@ -11,27 +13,41 @@ import javax.jmdns.impl.NetworkTopologyEventImpl;
 
 /**
  * Emetteur Bonjour pour qu'iTunes detecte la borne airport
- * Needs Bonjour for Windows (apple.com)
  * @author bencall
  *
  */
 
 //
 public class BonjourEmitter {
-    JmmDNS dns;
+	JmmDNS dns;
 	
-	public BonjourEmitter(String name, String identifier, int port) throws IOException{
-		    		    
+	public BonjourEmitter(String name, String identifier, int port, boolean pass) throws IOException {
+
+			// Set up TXT Record	    
+		    Map<String,Object> txtRec = new HashMap<>();
+		    txtRec.put("txtvers", "1");
+		    txtRec.put("pw", String.valueOf(pass));
+		    txtRec.put("sr", "44100");
+		    txtRec.put("ss", "16");
+		    txtRec.put("ch", "2");
+		    txtRec.put("tp", "UDP");
+		    txtRec.put("sm", "false");
+		    txtRec.put("sv", "false");
+		    txtRec.put("ek", "1");
+		    txtRec.put("et", "0,1");
+		    txtRec.put("cn", "0,1");
+		    txtRec.put("vn", "3");
+
 		    // Il faut un serial bidon pour se connecter
-		    if (identifier == null){
+		    if (identifier == null) {
 		    	identifier = "";
-		    	for(int i=0; i<6; i++){
+		    	for(int i=0; i<6; i++) {
 		    		identifier = identifier + Integer.toHexString((int) (Math.random()*255)).toUpperCase();
 		    	}
 		    }
 
-		    // Zeroconf registration
-		    ServiceInfo info = ServiceInfo.create(identifier + "@" + name + "._raop._tcp.local", identifier + "@" + name, port, "tp=UDP sm=false sv=false ek=1 et=0,1 cn=0,1 ch=2 ss=16 sr=44100 pw=false vn=3 txtvers=1");
+			// Zeroconf registration
+		    ServiceInfo info = ServiceInfo.create(identifier + "@" + name + "._raop._tcp.local", identifier + "@" + name, port, 0, 0, txtRec);
 
 		    dns = JmmDNS.Factory.getInstance();
 		    ((JmmDNSImpl)dns).inetAddressAdded(new NetworkTopologyEventImpl(JmDNS.create(InetAddress.getByName("localhost")), InetAddress.getByName("localhost")));
@@ -51,6 +67,6 @@ public class BonjourEmitter {
 	public void stop() throws IOException {
         dns.unregisterAllServices();
 		dns.close();
-	}
+	} 
 }
 
