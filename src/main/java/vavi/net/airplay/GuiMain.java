@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;

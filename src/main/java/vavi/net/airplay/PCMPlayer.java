@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;

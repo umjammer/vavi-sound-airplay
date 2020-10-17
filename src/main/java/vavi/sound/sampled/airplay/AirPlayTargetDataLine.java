@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package vavi.apps.rplay;
+package vavi.sound.sampled.airplay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,8 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-import vavi.apps.rplay.RAOPSink.Sink;
+import vavi.net.airplay.RAOPSink.Sink;
+import vavi.net.airplay.RTSPServer;
 import vavi.util.Debug;
 
 

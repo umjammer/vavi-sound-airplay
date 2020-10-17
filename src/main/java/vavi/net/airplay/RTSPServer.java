@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -32,7 +32,7 @@ public class RTSPServer extends Thread {
     private String password;
     private boolean stopThread = false;
 
-    interface RTSPListener {
+    public interface RTSPListener {
         void requestHappend(RTSPRequest request);
     }
 

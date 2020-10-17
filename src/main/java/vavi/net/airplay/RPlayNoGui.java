@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 public class RPlayNoGui {
 

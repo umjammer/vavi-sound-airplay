@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

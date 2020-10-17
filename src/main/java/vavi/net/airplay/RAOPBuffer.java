@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

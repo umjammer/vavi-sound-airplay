@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,7 +24,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import vavi.apps.rplay.RTSPServer.RTSPListener;
+import vavi.net.airplay.RTSPServer.RTSPListener;
 import vavi.util.ByteUtil;
 
 

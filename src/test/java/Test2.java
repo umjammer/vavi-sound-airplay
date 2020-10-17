@@ -11,7 +11,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import vavi.apps.rplay.AirPlayTargetDataLine;
+import vavi.sound.sampled.airplay.AirPlayTargetDataLine;
 import vavi.util.Debug;
 
 

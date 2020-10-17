@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 
 /**
@@ -17,7 +17,7 @@ public class RAOPSink extends Thread {
     private boolean stopThread = false;
     private Sink sink;
 
-    interface Sink {
+    public interface Sink {
         int write(byte[] b, int ofs, int len);
     }
 

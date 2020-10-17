@@ -1,5 +1,5 @@
 
-package vavi.apps.rplay;
+package vavi.net.airplay;
 
 import com.beatofthedrum.alacdecoder.MyAlacDecodeUtils;
 import com.beatofthedrum.alacdecoder.MyAlacFile;
