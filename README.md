@@ -51,3 +51,7 @@ These libraries are included in RPlay:
     * Fixed auto-startup and enabled RPlayNoGui.jar.
  * 0.03    May 2, 2013
     * Added password support. Also replaced mDNSResponder with JmDNS.
+
+## TODO
+
+ * be javax.sound.sampled.spi

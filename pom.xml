@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-apps-rplay</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
 
   <build>
     <plugins>
@@ -37,15 +37,18 @@
       <artifactId>Java-Apple-Lossless-decoder</artifactId>
       <version>0.2.9</version>
     </dependency>
+
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.12</version>
+      <groupId>vavi</groupId>
+      <artifactId>vavi-commons</artifactId>
+      <version>1.1.4-SNAPSHOT</version>
     </dependency>
+
     <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk16</artifactId>
-      <version>1.46</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.5</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

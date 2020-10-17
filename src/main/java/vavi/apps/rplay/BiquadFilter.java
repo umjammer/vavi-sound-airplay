@@ -1,75 +1,81 @@
+
 package vavi.apps.rplay;
+
+
 /**
  * Implementation of the biquad filter. Not sure it is correct
- * @author bencall
  *
+ * @author bencall
  */
 public class BiquadFilter {
-    double bf_playback_rate = 1.0;
-    double bf_est_drift = 0.0;   // local clock is slower by
-    biquad_t bf_drift_lpf;
-    double bf_est_err = 0.0, bf_last_err;
-    biquad_t bf_err_lpf, bf_err_deriv_lpf;
-    double desired_fill;
-    int fill_count;
-    int sampling_rate;
-    int frame_size;
-     
-    private static final double CONTROL_A  = (1e-4);
-    private static final double CONTROL_B = (1e-1);
-     
-    public BiquadFilter(int sampling_rate, int frame_size){
-        this.sampling_rate = sampling_rate;
-        this.frame_size = frame_size;
-        bf_drift_lpf = biquad_lpf(1.0/180.0, 0.3);
-        bf_err_lpf = biquad_lpf(1.0/10.0, 0.25);
-        bf_err_deriv_lpf = biquad_lpf(1.0/2.0, 0.2);
-        fill_count = 0;
-        bf_playback_rate = 1.0;
-        bf_est_err = 0;
-        bf_last_err = 0;
-        desired_fill = 0;
-        fill_count = 0;
+
+    private static class Biquad {
+        double[] hist = new double[2];
+        double[] a = new double[2];
+        double[] b = new double[3];
+
+        Biquad(double freq, double Q, double samplingRate, double frameSize) {
+            double w0 = 2 * Math.PI * freq / (samplingRate / frameSize);
+            double alpha = Math.sin(w0) / (2.0 * Q);
+
+            double a_0 = 1.0 + alpha;
+            this.b[0] = (1.0 - Math.cos(w0)) / (2.0 * a_0);
+            this.b[1] = (1.0 - Math.cos(w0)) / a_0;
+            this.b[2] = this.b[0];
+            this.a[0] = -2.0 * Math.cos(w0) / a_0;
+            this.a[1] = (1 - alpha) / a_0;
+        }
+
+        double filter(double in) {
+            double w = in - this.a[0] * this.hist[0] - this.a[1] * this.hist[1];
+//          double out  = this.b[1] * this.hist[0] + this.b[2] * this.hist[1] + this.b[0] * w;
+            this.hist[1] = this.hist[0];
+            this.hist[0] = w;
+            return w;
+        }
     }
-     
-    private biquad_t biquad_lpf(double freq, double Q) {
-        biquad_t ret = new biquad_t();
-         
-        double w0 = 2*Math.PI*freq/((float)sampling_rate/(float)frame_size);
-        double alpha = Math.sin(w0)/(2.0*Q);
-         
-        double a_0 = 1.0 + alpha;
-        ret.b[0] = (1.0-Math.cos(w0))/(2.0*a_0);
-        ret.b[1] = (1.0-Math.cos(w0))/a_0;
-        ret.b[2] = ret.b[0];
-        ret.a[0] = -2.0*Math.cos(w0)/a_0;
-        ret.a[1] = (1-alpha)/a_0;
-         
-        return ret;
+
+    private  double playbackRate = 1.0;
+    // local clock is slower by
+    private double estDrift = 0.0;
+    private Biquad driftLpf;
+    private double estErr = 0.0, lastErr;
+    private Biquad errLpf, errDerivLpf;
+    private double desiredFill;
+    private int fillCount;
+    private static final double CONTROL_A = 1e-4;
+    private static final double CONTROL_B = 1e-1;
+
+    public BiquadFilter(int samplingRate, int frameSize) {
+        driftLpf = new Biquad(1.0 / 180.0, 0.3, samplingRate, frameSize);
+        errLpf = new Biquad(1.0 / 10.0, 0.25, samplingRate, frameSize);
+        errDerivLpf = new Biquad(1.0 / 2.0, 0.2, samplingRate, frameSize);
+        fillCount = 0;
+        playbackRate = 1.0;
+        estErr = 0;
+        lastErr = 0;
+        desiredFill = 0;
+        fillCount = 0;
     }
-     
-    public void update(int fill){
-        if (fill_count < 1000) {
-            desired_fill += (double)fill/1000.0;
-            fill_count++;
+
+    public void update(int fill) {
+        if (fillCount < 1000) {
+            desiredFill += fill / 1000.0;
+            fillCount++;
             return;
         }
-                 
-        double buf_delta = fill - desired_fill;
-        bf_est_err = filter(bf_err_lpf, buf_delta);
-        double err_deriv = filter(bf_err_deriv_lpf, bf_est_err - bf_last_err);
-             
-        bf_est_drift = filter(bf_drift_lpf, CONTROL_B*(bf_est_err*CONTROL_A + err_deriv) + bf_est_drift);
-             
-        bf_playback_rate = 1.0 + CONTROL_A*bf_est_err + bf_est_drift;    
-        bf_last_err = bf_est_err;
+
+        double buf_delta = fill - desiredFill;
+        estErr = errLpf.filter(buf_delta);
+        double err_deriv = errDerivLpf.filter(estErr - lastErr);
+
+        estDrift = driftLpf.filter(CONTROL_B * (estErr * CONTROL_A + err_deriv) + estDrift);
+
+        playbackRate = 1.0 + CONTROL_A * estErr + estDrift;
+        lastErr = estErr;
     }
-     
-    private double filter(biquad_t bq, double in) {
-        double w = in - bq.a[0]*bq.hist[0] - bq.a[1]*bq.hist[1];
-//      double out  = bq.b[1]*bq.hist[0] + bq.b[2]*bq.hist[1] + bq.b[0]*w;
-        bq.hist[1] = bq.hist[0];
-        bq.hist[0] = w;
-        return w;
+
+    public double getPlaybackRate() {
+        return playbackRate;
     }
 }

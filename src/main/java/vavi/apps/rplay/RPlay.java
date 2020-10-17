@@ -1,18 +1,21 @@
+
 package vavi.apps.rplay;
+
 /**
  * Main class
- * @author bencall
  *
+ * <li> 201015 works
+ *
+ * @author bencall
  */
+public class RPlay {
 
-//
-public class RPlay{
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new Window();
-	}
-
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        RTSPServer server = new RTSPServer("RPlay");
+        server.setRAOPSink(new PCMPlayer());
+        server.start();
+    }
 }
