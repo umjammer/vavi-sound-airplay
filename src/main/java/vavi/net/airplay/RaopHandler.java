@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * https://github.com/bencall/RPlay
  */
 
 package vavi.net.airplay;
@@ -16,9 +16,9 @@ import java.util.logging.Logger;
  *
  * @author bencall
  */
-public class RAOPHandler implements UDPHandler {
+public class RaopHandler implements UdpHandler {
 
-    static Logger logger = Logger.getLogger(RAOPHandler.class.getName());
+    static Logger logger = Logger.getLogger(RaopHandler.class.getName());
 
     // Constants
 
@@ -31,26 +31,26 @@ public class RAOPHandler implements UDPHandler {
 
     /** Sockets */
     private DatagramSocket sock, csock;
-    private UDPServer l1;
+    private UdpServer l1;
     /** client address */
     private InetAddress rtpClient;
     /** Audio infos and datas */
-    private RAOPPacket session;
-    private RAOPBuffer audioBuf;
+    private RaopPacket session;
+    private RaopBuffer audioBuf;
     /** The audio player */
-    private RAOPSink player;
+    private RaopSink player;
 
     /**
      * Constructor.
      */
-    public RAOPHandler(RAOPPacket session, RAOPSink.Sink sink) {
+    public RaopHandler(RaopPacket session, RaopSink.Sink sink) {
         // Init instance var
         this.session = session;
 
         // Init functions
-        audioBuf = new RAOPBuffer(session, this::requestResend);
+        audioBuf = new RaopBuffer(session, this::requestResend);
         this.initRTP();
-        player = new RAOPSink(session, audioBuf, sink);
+        player = new RaopSink(session, audioBuf, sink);
         player.start();
     }
 
@@ -91,7 +91,7 @@ public class RAOPHandler implements UDPHandler {
             break;
         }
 
-        l1 = new UDPServer(sock, this);
+        l1 = new UdpServer(sock, this);
     }
 
     /**

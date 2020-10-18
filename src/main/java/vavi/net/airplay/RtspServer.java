@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -22,9 +25,9 @@ import vavi.util.ByteUtil;
  *
  * @author bencall
  */
-public class RTSPServer extends Thread {
+public class RtspServer extends Thread {
 
-    private static Logger logger = Logger.getLogger(RTSPServer.class.getName());
+    private static Logger logger = Logger.getLogger(RtspServer.class.getName());
 
     private Bonjour mdns;
     private ServerSocket servSock = null;
@@ -33,7 +36,7 @@ public class RTSPServer extends Thread {
     private boolean stopThread = false;
 
     public interface RTSPListener {
-        void requestHappend(RTSPRequest request);
+        void requestHappend(RtspRequest request);
     }
 
     private List<RTSPListener> listeners = new ArrayList<>();
@@ -42,19 +45,19 @@ public class RTSPServer extends Thread {
         listeners.add(listener);
     }
 
-    private RAOPSink.Sink sink;
+    private RaopSink.Sink sink;
 
-    public void setRAOPSink(RAOPSink.Sink sink) {
+    public void setRAOPSink(RaopSink.Sink sink) {
         this.sink = sink;
     }
 
     /** */
-    public RTSPServer(String name) {
+    public RtspServer(String name) {
         this.name = name;
     }
 
     /** */
-    public RTSPServer(String name, String pass) {
+    public RtspServer(String name, String pass) {
         this.name = name;
         this.password = pass;
     }
@@ -88,11 +91,11 @@ logger.info("starting service...");
             public void run() {
 System.err.println("shutting down...");
 
-                RTSPServer.this.stopThread();
+                RtspServer.this.stopThread();
 
                 try {
-                    RTSPServer.this.mdns.stop();
-                    RTSPServer.this.servSock.close();
+                    RtspServer.this.mdns.stop();
+                    RtspServer.this.servSock.close();
 
 System.err.println("service stopped.");
                 } catch (IOException e) {
@@ -133,11 +136,11 @@ logger.info("service started.");
 logger.info("accepted connection from " + socket.toString());
 
                     // Check if password is set
-                    RTSPHandler handler;
+                    RtspHandler handler;
                     if (password == null)
-                        handler = new RTSPHandler(hwAddr, socket);
+                        handler = new RtspHandler(hwAddr, socket);
                     else
-                        handler = new RTSPHandler(hwAddr, socket, password);
+                        handler = new RtspHandler(hwAddr, socket, password);
                     handler.setRAOPSink(sink);
                     listeners.forEach(handler::addRTSPListener);
                     handler.start();

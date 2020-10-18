@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -10,6 +13,6 @@ import java.net.DatagramSocket;
  *
  * @author bencall
  */
-public interface UDPHandler {
+public interface UdpHandler {
     public void packetReceived(DatagramSocket socket, DatagramPacket packet);
 }

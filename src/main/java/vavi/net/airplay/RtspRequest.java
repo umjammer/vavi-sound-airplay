@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -12,7 +15,7 @@ import java.util.regex.Pattern;
  *
  * @author bencall
  */
-public class RTSPRequest {
+public class RtspRequest {
 
     private String req;
     private String directory;
@@ -22,7 +25,7 @@ public class RTSPRequest {
     private List<String> headerContent;
     private String rawPacket;
 
-    public RTSPRequest(String packet) {
+    public RtspRequest(String packet) {
         // Init arrays
         headers = new ArrayList<>();
         headerContent = new ArrayList<>();

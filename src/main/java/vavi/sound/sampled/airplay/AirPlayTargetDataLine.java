@@ -19,8 +19,8 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-import vavi.net.airplay.RAOPSink.Sink;
-import vavi.net.airplay.RTSPServer;
+import vavi.net.airplay.RaopSink.Sink;
+import vavi.net.airplay.RtspServer;
 import vavi.util.Debug;
 
 
@@ -158,11 +158,11 @@ Debug.println("waiting for server open...");
 
     private boolean isOpen;
 
-    private RTSPServer server;
+    private RtspServer server;
 
     @Override
     public void open() throws LineUnavailableException {
-        server = new RTSPServer("AirPlayTargetDataLine");
+        server = new RtspServer("AirPlayTargetDataLine");
         server.addRTSPListener(r -> {
             if (!isOpen && r.getReq().equals("SETUP")) {
                 isOpen = true;

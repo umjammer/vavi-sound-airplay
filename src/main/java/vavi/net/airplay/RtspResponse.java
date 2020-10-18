@@ -1,11 +1,14 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
-public class RTSPResponse {
+public class RtspResponse {
 
     private StringBuilder response = new StringBuilder();
 
-    public RTSPResponse(String header) {
+    public RtspResponse(String header) {
         response.append(header + "\r\n");
     }
 

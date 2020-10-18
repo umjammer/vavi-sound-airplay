@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -24,7 +27,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import vavi.net.airplay.RTSPServer.RTSPListener;
+import vavi.net.airplay.RtspServer.RTSPListener;
 import vavi.util.ByteUtil;
 
 
@@ -33,13 +36,13 @@ import vavi.util.ByteUtil;
  *
  * @author bencall
  */
-public class RTSPHandler extends Thread {
+public class RtspHandler extends Thread {
 
-    private static Logger logger = Logger.getLogger(RTSPHandler.class.getName());
+    private static Logger logger = Logger.getLogger(RtspHandler.class.getName());
 
     private List<RTSPListener> listeners = new ArrayList<>();
 
-    protected void fireUpdate(RTSPRequest request) {
+    protected void fireUpdate(RtspRequest request) {
         listeners.forEach(l -> l.requestHappend(request));
     }
 
@@ -47,9 +50,9 @@ public class RTSPHandler extends Thread {
         listeners.add(listener);
     }
 
-    private RAOPSink.Sink sink;
+    private RaopSink.Sink sink;
 
-    public void setRAOPSink(RAOPSink.Sink sink) {
+    public void setRAOPSink(RaopSink.Sink sink) {
         this.sink = sink;
 //Debug.println("rtsp sink set: " + sink + "@" + this.hashCode());
     }
@@ -60,44 +63,44 @@ public class RTSPHandler extends Thread {
     // ANNOUNCE request infos
     private byte[] aesiv, aeskey;
     // Audio listener
-    private RAOPHandler raopHandler;
+    private RaopHandler raopHandler;
     byte[] hwAddr;
     private BufferedReader in;
     private String password;
-    private RTSPResponse response;
+    private RtspResponse response;
     // Pre-define patterns
     private static final Pattern authPattern = Pattern
             .compile("Digest username=\"(.*)\", realm=\"(.*)\", nonce=\"(.*)\", uri=\"(.*)\", response=\"(.*)\"");
     private static final Pattern completedPacket = Pattern.compile("(.*)\r\n\r\n");
-    private AirPlayCrypto crypto;
+    private Crypto crypto;
 
-    public RTSPHandler(byte[] hwAddr, Socket socket) throws IOException {
+    public RtspHandler(byte[] hwAddr, Socket socket) throws IOException {
         this(hwAddr, socket, null);
     }
 
-    public RTSPHandler(byte[] hwAddr, Socket socket, String pass) throws IOException {
+    public RtspHandler(byte[] hwAddr, Socket socket, String pass) throws IOException {
         this.hwAddr = hwAddr;
         this.socket = socket;
         this.password = pass;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         try {
-            crypto = new AirPlayCrypto();
+            crypto = new Crypto();
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    public RTSPResponse handlePacket(RTSPRequest packet) {
+    public RtspResponse handlePacket(RtspRequest packet) {
 
         if (password == null) {
             // No pass = ok!
-            response = new RTSPResponse("RTSP/1.0 200 OK");
+            response = new RtspResponse("RTSP/1.0 200 OK");
             response.append("Audio-Jack-Status", "connected; type=analog");
             response.append("CSeq", packet.valueOfHeader("CSeq"));
         } else {
             // Default response (deny, deny, deny!)
-            response = new RTSPResponse("RTSP/1.0 401 UNAUTHORIZED");
+            response = new RtspResponse("RTSP/1.0 401 UNAUTHORIZED");
             response.append("WWW-Authenticate", "Digest realm=\"*\" nonce=\"*\"");
             response.append("Method", "DENIED");
 
@@ -122,7 +125,7 @@ public class RTSPHandler extends Thread {
                     // Check against password
                     if (hash.equals(resp)) {
                         // Success!
-                        response = new RTSPResponse("RTSP/1.0 200 OK");
+                        response = new RtspResponse("RTSP/1.0 200 OK");
                         response.append("Audio-Jack-Status", "connected; type=analog");
                         response.append("CSeq", packet.valueOfHeader("CSeq"));
                     }
@@ -195,7 +198,7 @@ logger.info("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexStri
 
             // Launching audioserver
 //Debug.println("sink: " + sink + "@" + this.hashCode());
-            raopHandler = new RAOPHandler(new RAOPPacket(aesiv, aeskey, fmtp, controlPort, timingPort), sink);
+            raopHandler = new RaopHandler(new RaopPacket(aesiv, aeskey, fmtp, controlPort, timingPort), sink);
 
             response.append("Transport", packet.valueOfHeader("Transport") + ";server_port=" + raopHandler.getServerPort());
 
@@ -308,8 +311,8 @@ logger.info("listening packets ... ");
 
                 if (ret != -1) {
                     // We handle the packet
-                    RTSPRequest request = new RTSPRequest(packet.toString());
-                    RTSPResponse response = this.handlePacket(request);
+                    RtspRequest request = new RtspRequest(packet.toString());
+                    RtspResponse response = this.handlePacket(request);
 System.out.println(request.toString());
 System.out.println(response.toString());
 

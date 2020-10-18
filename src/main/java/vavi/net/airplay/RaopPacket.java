@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -5,7 +8,7 @@ import com.beatofthedrum.alacdecoder.MyAlacDecodeUtils;
 import com.beatofthedrum.alacdecoder.MyAlacFile;
 
 
-public class RAOPPacket {
+public class RaopPacket {
     private MyAlacFile alac;
     private byte[] aesiv;
     private byte[] aeskey;
@@ -24,7 +27,7 @@ public class RAOPPacket {
     private int _8a_rate;
     private BiquadFilter bFilter;
 
-    public RAOPPacket(byte[] aesiv, byte[] aeskey, int[] fmtp, int controlPort, int timingPort) {
+    public RaopPacket(byte[] aesiv, byte[] aeskey, int[] fmtp, int controlPort, int timingPort) {
         // KEYS
         this.aesiv = aesiv;
         this.aeskey = aeskey;

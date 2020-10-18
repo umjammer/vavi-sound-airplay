@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -24,9 +27,9 @@ import com.beatofthedrum.alacdecoder.MyAlacDecodeUtils;
  *
  * @author bencall
  */
-public class RAOPBuffer {
+public class RaopBuffer {
 
-    private static Logger logger = Logger.getLogger(RAOPBuffer.class.getName());
+    private static Logger logger = Logger.getLogger(RaopBuffer.class.getName());
 
     private static class AudioData {
         boolean ready;
@@ -49,7 +52,7 @@ public class RAOPBuffer {
     /** Can we read in buffer? */
     private boolean synced = false;
     /** Audio infos (rate, etc...) */
-    private RAOPPacket session;
+    private RaopPacket session;
     /** The seqnos at which we read and write */
     private int readIndex;
     private int writeIndex;
@@ -61,7 +64,6 @@ public class RAOPBuffer {
      */
     private boolean isDecoderStopped = false;
 
-    /** RSA-AES decryption infos */
     private static class Crypto {
         Cipher cipher;
         Crypto(byte[] aes, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -74,7 +76,8 @@ public class RAOPBuffer {
         }
     }
 
-    Crypto crypto;
+    /** RSA-AES decryption infos */
+    private Crypto crypto;
 
     /** Needed for asking missing packets */
     private BiConsumer<Integer, Integer> resender;
@@ -85,7 +88,7 @@ public class RAOPBuffer {
      * @param session audio infos
      * @param resender where to ask for resending missing packets
      */
-    public RAOPBuffer(RAOPPacket session, BiConsumer<Integer, Integer> resender) {
+    public RaopBuffer(RaopPacket session, BiConsumer<Integer, Integer> resender) {
         this.session = session;
         this.resender = resender;
 

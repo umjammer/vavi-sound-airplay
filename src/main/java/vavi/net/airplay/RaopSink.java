@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -8,12 +11,12 @@ package vavi.net.airplay;
  *
  * @author bencall
  */
-public class RAOPSink extends Thread {
+public class RaopSink extends Thread {
 
-    private RAOPPacket session;
+    private RaopPacket session;
     private volatile long fix_volume = 0x10000;
     private short rand_a, rand_b;
-    private RAOPBuffer audioBuf;
+    private RaopBuffer audioBuf;
     private boolean stopThread = false;
     private Sink sink;
 
@@ -21,7 +24,7 @@ public class RAOPSink extends Thread {
         int write(byte[] b, int ofs, int len);
     }
 
-    public RAOPSink(RAOPPacket session, RAOPBuffer audioBuf, Sink sink) {
+    public RaopSink(RaopPacket session, RaopBuffer audioBuf, Sink sink) {
         this.session = session;
         this.audioBuf = audioBuf;
         this.sink = sink;

@@ -24,7 +24,7 @@ public class GuiMain implements ActionListener {
     private JButton stopButton;
     private JTextField nameField;
     private JPasswordField passField;
-    private RTSPServer t;
+    private RtspServer server;
     private Preferences prefs;
 
     /**
@@ -75,11 +75,12 @@ public class GuiMain implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == startButton) {
             if (passField.getPassword() == null || passField.getPassword().length == 0)
-                t = new RTSPServer(nameField.getText());
+                server = new RtspServer(nameField.getText());
             else
-                t = new RTSPServer(nameField.getText(), new String(passField.getPassword()));
+                server = new RtspServer(nameField.getText(), new String(passField.getPassword()));
 
-            t.start();
+            server.setRAOPSink(new PCMPlayer());
+            server.start();
 
             prefs.put("apname", nameField.getText());
             prefs.put("pass", new String(passField.getPassword()));
@@ -88,7 +89,7 @@ public class GuiMain implements ActionListener {
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
         } else if (event.getSource() == stopButton) {
-            t.stopThread();
+            server.stopThread();
 
             prefs.putBoolean("launched", false); // Used on next launch
 

@@ -14,7 +14,7 @@ public class RPlay {
      * @param args
      */
     public static void main(String[] args) {
-        RTSPServer server = new RTSPServer("RPlay");
+        RtspServer server = new RtspServer("RPlay");
         server.setRAOPSink(new PCMPlayer());
         server.start();
     }

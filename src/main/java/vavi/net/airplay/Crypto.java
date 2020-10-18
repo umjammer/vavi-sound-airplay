@@ -30,7 +30,7 @@ import javax.crypto.NoSuchPaddingException;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/16 umjammer initial version <br>
  */
-public class AirPlayCrypto {
+public class Crypto {
 
     private static Key key;
     private Cipher encryptionCipher;
@@ -39,7 +39,7 @@ public class AirPlayCrypto {
     static {
         try {
             // The RSA key
-            DataInputStream is = new DataInputStream(RTSPHandler.class.getResourceAsStream("/key.pk8"));
+            DataInputStream is = new DataInputStream(RtspHandler.class.getResourceAsStream("/key.pk8"));
             byte[] buf = new byte[is.available()];
             is.readFully(buf);
             key = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(buf));
@@ -48,7 +48,7 @@ public class AirPlayCrypto {
         }
     }
 
-    public AirPlayCrypto() throws NoSuchAlgorithmException, NoSuchPaddingException {
+    public Crypto() throws NoSuchAlgorithmException, NoSuchPaddingException {
         // bc: "RSA/NONE/PKCS1Padding"
         encryptionCipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
         // bc: "RSA/NONE/OAEPPadding"

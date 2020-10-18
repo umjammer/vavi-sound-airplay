@@ -7,10 +7,10 @@ public class RPlayNoGui {
 
         if (args.length == 1) {
             // Name only
-            new RTSPServer(args[0]).start();
+            new RtspServer(args[0]).start();
         } else if (args.length == 2) {
             // Name and password
-            new RTSPServer(args[0], args[1]).start();
+            new RtspServer(args[0], args[1]).start();
         } else {
             System.err.println("Java port of shairport.");
             System.err.println("usage : java -jar " + RPlayNoGui.class.getCanonicalName() + ".jar <AP_name> [<password>]");

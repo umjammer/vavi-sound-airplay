@@ -1,3 +1,6 @@
+/*
+ * https://github.com/bencall/RPlay
+ */
 
 package vavi.net.airplay;
 
@@ -11,15 +14,15 @@ import java.net.DatagramSocket;
  *
  * @author bencall
  */
-public class UDPServer extends Thread {
+public class UdpServer extends Thread {
     // Constantes
     public static final int MAX_PACKET = 2048;
     // Variables d'instances
     private DatagramSocket socket;
-    private UDPHandler handler;
+    private UdpHandler handler;
     private boolean stopThread = false;
 
-    public UDPServer(DatagramSocket socket, UDPHandler handler) {
+    public UdpServer(DatagramSocket socket, UdpHandler handler) {
         this.socket = socket;
         this.handler = handler;
         this.start();
