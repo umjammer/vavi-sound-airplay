@@ -4,6 +4,9 @@
 
 package vavi.net.airplay;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 /**
  * Will create a new thread and play packets added to the ring buffer and set as
@@ -11,36 +14,38 @@ package vavi.net.airplay;
  *
  * @author bencall
  */
-public class RaopSink extends Thread {
+public class RaopSink {
 
-    private RaopPacket session;
-    private volatile long fix_volume = 0x10000;
-    private short rand_a, rand_b;
-    private RaopBuffer audioBuf;
+    private RaopPacket packet;
+    private volatile long fixVolume = 0x10000;
+    private short randA, randB;
+    private RaopBuffer audioBuffer;
     private boolean stopThread = false;
-    private Sink sink;
+    private Buffer sinkBuffer;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public interface Sink {
+    public interface Buffer {
         int write(byte[] b, int ofs, int len);
     }
 
-    public RaopSink(RaopPacket session, RaopBuffer audioBuf, Sink sink) {
-        this.session = session;
-        this.audioBuf = audioBuf;
-        this.sink = sink;
+    public RaopSink(RaopPacket packet, RaopBuffer audioBuffer, Buffer sinkBuffer) {
+        this.packet = packet;
+        this.audioBuffer = audioBuffer;
+        this.sinkBuffer = sinkBuffer;
+        executor.submit(this::run);
     }
 
-    public void run() {
+    private void run() {
         boolean fin = stopThread;
 
         while (!fin) {
-            int[] buf = audioBuf.getNextFrame();
+            int[] buf = audioBuffer.getNextFrame();
             if (buf == null) {
                 continue;
             }
 
-            int[] outbuf = new int[session.getOutFrameBytes()];
-            int k = stuffBuffer(session.getFilter().getPlaybackRate(), buf, outbuf);
+            int[] outbuf = new int[packet.getOutFrameBytes()];
+            int k = stuffBuffer(packet.getFilter().getPlaybackRate(), buf, outbuf);
 
             byte[] input = new byte[outbuf.length * 2];
 
@@ -50,7 +55,7 @@ public class RaopSink extends Thread {
                 input[j++] = (byte) (outbuf[i]);
             }
 
-            sink.write(input, 0, k * 4);
+            sinkBuffer.write(input, 0, k * 4);
 
             // Stop
             synchronized (this) {
@@ -60,20 +65,21 @@ public class RaopSink extends Thread {
         }
     }
 
-    public synchronized void stopThread() {
+    public void stop() {
         this.stopThread = true;
+        executor.shutdown();
     }
 
-    private int stuffBuffer(double playback_rate, int[] input, int[] output) {
-        int stuffsamp = session.getFrameSize();
+    private int stuffBuffer(double playbackRate, int[] input, int[] output) {
+        int stuffsamp = packet.getFrameSize();
         int stuff = 0;
-        double p_stuff;
+        double pStuff;
 
-        p_stuff = 1.0 - Math.pow(1.0 - Math.abs(playback_rate - 1.0), session.getFrameSize());
+        pStuff = 1.0 - Math.pow(1.0 - Math.abs(playbackRate - 1.0), packet.getFrameSize());
 
-        if (Math.random() < p_stuff) {
-            stuff = playback_rate > 1.0 ? -1 : 1;
-            stuffsamp = (int) (Math.random() * (session.getFrameSize() - 2));
+        if (Math.random() < pStuff) {
+            stuff = playbackRate > 1.0 ? -1 : 1;
+            stuffsamp = (int) (Math.random() * (packet.getFrameSize() - 2));
         }
 
         int j = 0;
@@ -91,27 +97,27 @@ public class RaopSink extends Thread {
             } else if (stuff == -1) {
                 l -= 2;
             }
-            for (int i = stuffsamp; i < session.getFrameSize() + stuff; i++) {
+            for (int i = stuffsamp; i < packet.getFrameSize() + stuff; i++) {
                 output[j++] = ditheredVolume(input[l++]);
                 output[j++] = ditheredVolume(input[l++]);
             }
         }
-        return session.getFrameSize() + stuff;
+        return packet.getFrameSize() + stuff;
     }
 
     public void setVolume(double vol) {
-        fix_volume = (long) vol;
+        fixVolume = (long) vol;
     }
 
     private short ditheredVolume(int sample) {
         long out;
-        rand_b = rand_a;
-        rand_a = (short) (Math.random() * 65535);
+        randB = randA;
+        randA = (short) (Math.random() * 65535);
 
-        out = sample * fix_volume;
-        if (fix_volume < 0x10000) {
-            out += rand_a;
-            out -= rand_b;
+        out = sample * fixVolume;
+        if (fixVolume < 0x10000) {
+            out += randA;
+            out -= randB;
         }
         return (short) (out >> 16);
     }

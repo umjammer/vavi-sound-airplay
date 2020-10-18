@@ -4,31 +4,35 @@
 
 package vavi.net.airplay;
 
+
+/**
+ * @author bencall
+ */
 public class RtspResponse {
 
     private StringBuilder response = new StringBuilder();
 
-    public RtspResponse(String header) {
-        response.append(header + "\r\n");
+    public RtspResponse(String firstLine) {
+        response.append(firstLine + "\r\n");
     }
 
-    public void append(String key, String value) {
+    public void addHeader(String key, String value) {
         response.append(key + ": " + value + "\r\n");
     }
 
     /**
      * close the response
      */
-    public void finalize() {
+    public void flush() {
         response.append("\r\n");
-    }
-
-    public String getRawPacket() {
-        return response.toString();
     }
 
     @Override
     public String toString() {
+        return response.toString();
+    }
+
+    public String toDebugString() {
         return " -> " + response.toString().replaceAll("\r\n", "\r\n -> ");
     }
 }

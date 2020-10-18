@@ -19,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +28,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import vavi.net.airplay.RtspServer.RTSPListener;
+import vavi.net.airplay.RtspServer.RtspListener;
+import vavi.net.airplay.RtspServer.RtspListener.RtspEvent;
+import vavi.net.airplay.RtspServer.RtspListener.EventType;
+import vavi.net.airplay.RtspServer.RtspListener.RequestType;
 import vavi.util.ByteUtil;
 
 
@@ -40,48 +44,56 @@ public class RtspHandler extends Thread {
 
     private static Logger logger = Logger.getLogger(RtspHandler.class.getName());
 
-    private List<RTSPListener> listeners = new ArrayList<>();
+    private List<RtspListener> listeners = new ArrayList<>();
 
-    protected void fireUpdate(RtspRequest request) {
-        listeners.forEach(l -> l.requestHappend(request));
+    protected void fireUpdate(RtspEvent request) {
+        listeners.forEach(l -> l.update(request));
     }
 
-    public void addRTSPListener(RTSPListener listener) {
+    public void addRtspListener(RtspListener listener) {
         listeners.add(listener);
     }
 
-    private RaopSink.Sink sink;
+    private RaopSink.Buffer sink;
 
-    public void setRAOPSink(RaopSink.Sink sink) {
+    public void setRaopSink(RaopSink.Buffer sink) {
         this.sink = sink;
 //Debug.println("rtsp sink set: " + sink + "@" + this.hashCode());
     }
 
     // Connected socket
     private Socket socket;
+
     private int[] fmtp;
     // ANNOUNCE request infos
-    private byte[] aesiv, aeskey;
+    private byte[] aesIv, aesKey;
+
     // Audio listener
     private RaopHandler raopHandler;
-    byte[] hwAddr;
+    private byte[] hwAddr;
     private BufferedReader in;
-    private String password;
+    private transient String password;
     private RtspResponse response;
+
     // Pre-define patterns
     private static final Pattern authPattern = Pattern
             .compile("Digest username=\"(.*)\", realm=\"(.*)\", nonce=\"(.*)\", uri=\"(.*)\", response=\"(.*)\"");
     private static final Pattern completedPacket = Pattern.compile("(.*)\r\n\r\n");
+    private static final Pattern announcePattern = Pattern.compile("^a=([^:]+):(.+)", Pattern.MULTILINE);
+    private static final Pattern controlPattern = Pattern.compile(";control_port=(\\d+)");
+    private static final Pattern timingPattern = Pattern.compile(";timing_port=(\\d+)");
+    private static final Pattern volumePattern = Pattern.compile("volume: (.+)");
+
     private Crypto crypto;
 
     public RtspHandler(byte[] hwAddr, Socket socket) throws IOException {
         this(hwAddr, socket, null);
     }
 
-    public RtspHandler(byte[] hwAddr, Socket socket, String pass) throws IOException {
+    public RtspHandler(byte[] hwAddr, Socket socket, String password) throws IOException {
         this.hwAddr = hwAddr;
         this.socket = socket;
-        this.password = pass;
+        this.password = password;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         try {
@@ -91,20 +103,20 @@ public class RtspHandler extends Thread {
         }
     }
 
-    public RtspResponse handlePacket(RtspRequest packet) {
+    public RtspResponse handleRequest(RtspRequest request) {
 
         if (password == null) {
             // No pass = ok!
             response = new RtspResponse("RTSP/1.0 200 OK");
-            response.append("Audio-Jack-Status", "connected; type=analog");
-            response.append("CSeq", packet.valueOfHeader("CSeq"));
+            response.addHeader("Audio-Jack-Status", "connected; type=analog");
+            response.addHeader("CSeq", request.getHeader("CSeq"));
         } else {
             // Default response (deny, deny, deny!)
             response = new RtspResponse("RTSP/1.0 401 UNAUTHORIZED");
-            response.append("WWW-Authenticate", "Digest realm=\"*\" nonce=\"*\"");
-            response.append("Method", "DENIED");
+            response.addHeader("WWW-Authenticate", "Digest realm=\"*\" nonce=\"*\"");
+            response.addHeader("Method", "DENIED");
 
-            String authRaw = packet.valueOfHeader("Authorization");
+            String authRaw = request.getHeader("Authorization");
 
             // If supplied, check response
             if (authRaw != null) {
@@ -116,7 +128,7 @@ public class RtspHandler extends Thread {
                     String nonce = auth.group(3);
                     String uri = auth.group(4);
                     String resp = auth.group(5);
-                    String method = packet.getReq();
+                    String method = request.getMethod();
 
                     String hash1 = md5Hash(username + ":" + realm + ":" + password).toUpperCase();
                     String hash2 = md5Hash(method + ":" + uri).toUpperCase();
@@ -126,15 +138,15 @@ public class RtspHandler extends Thread {
                     if (hash.equals(resp)) {
                         // Success!
                         response = new RtspResponse("RTSP/1.0 200 OK");
-                        response.append("Audio-Jack-Status", "connected; type=analog");
-                        response.append("CSeq", packet.valueOfHeader("CSeq"));
+                        response.addHeader("Audio-Jack-Status", "connected; type=analog");
+                        response.addHeader("CSeq", request.getHeader("CSeq"));
                     }
                 }
             }
         }
 
         // Apple Challenge-Response field if needed
-        String challenge = packet.valueOfHeader("Apple-Challenge");
+        String challenge = request.getHeader("Apple-Challenge");
         if (challenge != null) {
 
             // IP byte array
@@ -143,23 +155,24 @@ public class RtspHandler extends Thread {
 
             byte[] ip = ((InetSocketAddress) localAddress).getAddress().getAddress();
 
-logger.info("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexString(hwAddr));
+logger.fine("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexString(hwAddr));
             // Write
-            response.append("Apple-Response", getChallengeResponce(challenge, ip, hwAddr));
+            response.addHeader("Apple-Response", getChallengeResponce(challenge, ip, hwAddr));
 //        } else {
 //logger.info("challenge is null");
         }
 
-        // Paquet request
-        String REQ = packet.getReq();
-        if (REQ.contentEquals("OPTIONS")) {
+try {
+        // packet request
+        RequestType method = RequestType.valueOf(request.getMethod());
+        switch (method) {
+        case OPTIONS:
             // The response field
-            response.append("Public", "ANNOUNCE, SETUP, RECORD, PAUSE, FLUSH, TEARDOWN, OPTIONS, GET_PARAMETER, SET_PARAMETER");
-
-        } else if (REQ.contentEquals("ANNOUNCE")) {
+            response.addHeader("Public", RequestType.list());
+            break;
+        case ANNOUNCE:
             // Nothing to do here. Juste get the keys and values
-            Pattern p = Pattern.compile("^a=([^:]+):(.+)", Pattern.MULTILINE);
-            Matcher m = p.matcher(packet.getContent());
+            Matcher m = announcePattern.matcher(request.getContent());
             while (m.find()) {
                 if (m.group(1).contentEquals("fmtp")) {
                     // Parse FMTP as array
@@ -170,71 +183,78 @@ logger.info("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexStri
                     }
 
                 } else if (m.group(1).contentEquals("rsaaeskey")) {
-                    aeskey = this.decryptRSA(Base64.getDecoder().decode(m.group(2)));
+                    aesKey = this.decryptRSA(Base64.getDecoder().decode(m.group(2)));
                 } else if (m.group(1).contentEquals("aesiv")) {
-                    aesiv = Base64.getDecoder().decode(m.group(2));
+                    aesIv = Base64.getDecoder().decode(m.group(2));
                 }
             }
-
-        } else if (REQ.contentEquals("SETUP")) {
+            break;
+        case SETUP:
             int controlPort = 0;
             int timingPort = 0;
 
-            String value = packet.valueOfHeader("Transport");
+            String value = request.getHeader("Transport");
 
             // Control port
-            Pattern p = Pattern.compile(";control_port=(\\d+)");
-            Matcher m = p.matcher(value);
+            m = controlPattern.matcher(value);
             if (m.find()) {
                 controlPort = Integer.valueOf(m.group(1));
             }
 
             // Timing port
-            p = Pattern.compile(";timing_port=(\\d+)");
-            m = p.matcher(value);
+            m = timingPattern.matcher(value);
             if (m.find()) {
                 timingPort = Integer.valueOf(m.group(1));
             }
 
             // Launching audioserver
 //Debug.println("sink: " + sink + "@" + this.hashCode());
-            raopHandler = new RaopHandler(new RaopPacket(aesiv, aeskey, fmtp, controlPort, timingPort), sink);
+            raopHandler = new RaopHandler(new RaopPacket(aesIv, aesKey, fmtp, controlPort, timingPort), sink);
 
-            response.append("Transport", packet.valueOfHeader("Transport") + ";server_port=" + raopHandler.getServerPort());
+            response.addHeader("Transport", request.getHeader("Transport") + ";server_port=" + raopHandler.getServerPort());
 
             // ??? Why ???
-            response.append("Session", "DEADBEEF");
-        } else if (REQ.contentEquals("RECORD")) {
+            response.addHeader("Session", "DEADBEEF");
+            break;
+        case RECORD:
             // Headers
             // Range: ntp=0-
             // RTP-Info: seq={Note 1};rtptime={Note 2}
             // Note 1: Initial value for the RTP Sequence Number, random 16 bit value
             // Note 2: Initial value for the RTP Timestamps, random 32 bit value
 
-        } else if (REQ.contentEquals("FLUSH")) {
+            break;
+        case FLUSH:
             raopHandler.flush();
 
-        } else if (REQ.contentEquals("TEARDOWN")) {
-            response.append("Connection", "close");
+            break;
+        case TEARDOWN:
+            response.addHeader("Connection", "close");
 
-        } else if (REQ.contentEquals("SET_PARAMETER")) {
+            break;
+        case SET_PARAMETER:
             // Timing port
-            Pattern p = Pattern.compile("volume: (.+)");
-            Matcher m = p.matcher(packet.getContent());
+            m = volumePattern.matcher(request.getContent());
             if (m.find()) {
                 double volume = Math.pow(10.0, 0.05 * Double.parseDouble(m.group(1)));
                 raopHandler.setVolume(65536.0 * volume);
             }
 
-        } else {
-            logger.warning("REQUEST(" + REQ + "): Not Supported Yet!");
-            logger.warning(packet.getRawPacket());
+            break;
+        default:
+            logger.warning("REQUEST(" + method + "): Not Supported Yet!");
+            logger.warning(request.toString());
+            break;
         }
 
-        fireUpdate(packet);
+        fireUpdate(new RtspEvent(this, method));
+
+} catch (IllegalArgumentException e) {
+ logger.warning(e.getMessage());
+}
 
         // We close the response
-        response.finalize();
+        response.flush();
         return response;
     }
 
@@ -299,7 +319,7 @@ e.printStackTrace();
     public void run() {
         try {
             do {
-logger.info("listening packets ... ");
+logger.fine("listening packets ... ");
                 // feed buffer until packet completed
                 StringBuffer packet = new StringBuffer();
                 int ret = 0;
@@ -312,20 +332,21 @@ logger.info("listening packets ... ");
                 if (ret != -1) {
                     // We handle the packet
                     RtspRequest request = new RtspRequest(packet.toString());
-                    RtspResponse response = this.handlePacket(request);
-System.out.println(request.toString());
-System.out.println(response.toString());
-
+                    RtspResponse response = this.handleRequest(request);
+if (logger.isLoggable(Level.FINE)) {
+ System.out.println(request.toDebugString());
+ System.out.println(response.toDebugString());
+}
                     // Write the response to the wire
                     try {
                         BufferedWriter oStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        oStream.write(response.getRawPacket());
+                        oStream.write(response.toString());
                         oStream.flush();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    if ("TEARDOWN".equals(request.getReq())) {
+                    if ("TEARDOWN".equals(request.getMethod())) {
                         socket.close();
                         socket = null;
                     }
@@ -353,6 +374,8 @@ System.out.println(response.toString());
                 }
             }
         }
-logger.info("connection ended.");
+
+        fireUpdate(new RtspEvent(this, EventType.CONNECTION_ENDED));
+logger.fine("connection ended.");
     }
 }

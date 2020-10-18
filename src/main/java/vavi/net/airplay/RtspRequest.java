@@ -25,6 +25,10 @@ public class RtspRequest {
     private List<String> headerContent;
     private String rawPacket;
 
+    private static final Pattern firstLinePattern = Pattern.compile("^(\\w+)\\W(.+)\\WRTSP/(.+)\r\n");
+    private static final Pattern headerPattern = Pattern.compile("^([\\w-]+):\\W(.+)\r\n", Pattern.MULTILINE);
+    private static final Pattern contentPattern = Pattern.compile("\r\n\r\n(.+)", Pattern.DOTALL);
+
     public RtspRequest(String packet) {
         // Init arrays
         headers = new ArrayList<>();
@@ -33,8 +37,7 @@ public class RtspRequest {
 
         // If packet completed
         // First line
-        Pattern p = Pattern.compile("^(\\w+)\\W(.+)\\WRTSP/(.+)\r\n");
-        Matcher m = p.matcher(packet);
+        Matcher m = firstLinePattern.matcher(packet);
         if (m.find()) {
             req = m.group(1);
             directory = m.group(2);
@@ -42,16 +45,14 @@ public class RtspRequest {
         }
 
         // Header fields
-        p = Pattern.compile("^([\\w-]+):\\W(.+)\r\n", Pattern.MULTILINE);
-        m = p.matcher(packet);
+        m = headerPattern.matcher(packet);
         while (m.find()) {
             headers.add(m.group(1));
             headerContent.add(m.group(2));
         }
 
         // Content if present or null if not
-        p = Pattern.compile("\r\n\r\n(.+)", Pattern.DOTALL);
-        m = p.matcher(packet);
+        m = contentPattern.matcher(packet);
         if (m.find()) {
             content = m.group(1).trim();
             if (content.isEmpty()) {
@@ -60,7 +61,8 @@ public class RtspRequest {
         }
     }
 
-    public String getRawPacket() {
+    @Override
+    public String toString() {
         return rawPacket;
     }
 
@@ -68,7 +70,7 @@ public class RtspRequest {
         return content;
     }
 
-    public String getReq() {
+    public String getMethod() {
         return req;
     }
 
@@ -84,7 +86,7 @@ public class RtspRequest {
         return 200;
     }
 
-    public String valueOfHeader(String headerName) {
+    public String getHeader(String headerName) {
         int i = headers.indexOf(headerName);
         if (i == -1) {
             return null;
@@ -92,8 +94,7 @@ public class RtspRequest {
         return headerContent.get(i);
     }
 
-    @Override
-    public String toString() {
+    public String toDebugString() {
         return " <- " + rawPacket.replaceAll("\r\n", "\r\n <- ");
     }
 }

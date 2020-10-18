@@ -85,18 +85,18 @@ public class RaopBuffer {
     /**
      * Instantiate the buffer
      *
-     * @param session audio infos
+     * @param packet audio infos
      * @param resender where to ask for resending missing packets
      */
-    public RaopBuffer(RaopPacket session, BiConsumer<Integer, Integer> resender) {
-        this.session = session;
+    public RaopBuffer(RaopPacket packet, BiConsumer<Integer, Integer> resender) {
+        this.session = packet;
         this.resender = resender;
 
         audioBuffer = new AudioData[BUFFER_FRAMES];
         for (int i = 0; i < BUFFER_FRAMES; i++) {
             audioBuffer[i] = new AudioData();
             // OUTFRAME_BYTES = 4(frameSize + 3)
-            audioBuffer[i].data = new int[session.getOutFrameBytes()];
+            audioBuffer[i].data = new int[packet.getOutFrameBytes()];
         }
     }
 
@@ -258,7 +258,7 @@ logger.info("Late packet with seq. numb.: " + seqno);
         byte[] packet = new byte[MAX_PACKET];
 
         // Init AES
-        initAES();
+        initAes();
 
         int i;
         for (i = 0; i + 16 <= data.length; i += 16) {
@@ -282,10 +282,10 @@ logger.info("Late packet with seq. numb.: " + seqno);
     /**
      * Initiate the cipher
      */
-    private void initAES() {
+    private void initAes() {
         // Init AES encryption
         try {
-            crypto = new Crypto(session.getAESKEY(), session.getAESIV());
+            crypto = new Crypto(session.getAesKey(), session.getAesIv());
         } catch (Exception e) {
             e.printStackTrace();
         }

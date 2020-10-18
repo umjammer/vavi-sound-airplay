@@ -79,7 +79,7 @@ public class GuiMain implements ActionListener {
             else
                 server = new RtspServer(nameField.getText(), new String(passField.getPassword()));
 
-            server.setRAOPSink(new PCMPlayer());
+            server.setRaopSink(new PCMPlayer());
             server.start();
 
             prefs.put("apname", nameField.getText());
@@ -89,7 +89,7 @@ public class GuiMain implements ActionListener {
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
         } else if (event.getSource() == stopButton) {
-            server.stopThread();
+            server.stop();
 
             prefs.putBoolean("launched", false); // Used on next launch
 

@@ -7,6 +7,8 @@ package vavi.net.airplay;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -14,7 +16,12 @@ import java.net.DatagramSocket;
  *
  * @author bencall
  */
-public class UdpServer extends Thread {
+public class UdpServer {
+
+    public interface UdpHandler {
+        void packetReceived(DatagramSocket socket, DatagramPacket packet);
+    }
+
     // Constantes
     public static final int MAX_PACKET = 2048;
     // Variables d'instances
@@ -22,13 +29,15 @@ public class UdpServer extends Thread {
     private UdpHandler handler;
     private boolean stopThread = false;
 
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
     public UdpServer(DatagramSocket socket, UdpHandler handler) {
         this.socket = socket;
         this.handler = handler;
-        this.start();
+        this.executor.submit(this::run);
     }
 
-    public void run() {
+    private void run() {
         boolean fin = stopThread;
         while (!fin) {
             byte[] buffer = new byte[MAX_PACKET];
@@ -51,7 +60,8 @@ public class UdpServer extends Thread {
         }
     }
 
-    public synchronized void stopThread() {
+    public void stop() {
         this.stopThread = true;
+        this.executor.shutdown();
     }
 }

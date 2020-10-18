@@ -9,7 +9,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 
-public class PCMPlayer implements RaopSink.Sink {
+public class PCMPlayer implements RaopSink.Buffer {
 
     private AudioFormat audioFormat;
     private Info info;

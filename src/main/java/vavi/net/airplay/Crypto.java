@@ -27,6 +27,7 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * AppleCrypto.
  *
+ * @author bencall
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/16 umjammer initial version <br>
  */

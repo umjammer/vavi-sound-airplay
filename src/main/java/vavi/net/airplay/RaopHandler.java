@@ -10,9 +10,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.logging.Logger;
 
+import vavi.net.airplay.UdpServer.UdpHandler;
+
 
 /**
- * Main class that listen for new packets.
+ * Listens for new packets.
  *
  * @author bencall
  */
@@ -30,60 +32,59 @@ public class RaopHandler implements UdpHandler {
     public static final int MAX_PACKET = 2048;
 
     /** Sockets */
-    private DatagramSocket sock, csock;
-    private UdpServer l1;
+    private DatagramSocket socket, controlSocket;
+    private UdpServer server;
     /** client address */
     private InetAddress rtpClient;
     /** Audio infos and datas */
-    private RaopPacket session;
-    private RaopBuffer audioBuf;
+    private RaopPacket packet;
+    private RaopBuffer audioBuffer;
     /** The audio player */
-    private RaopSink player;
+    private RaopSink sink;
 
     /**
      * Constructor.
      */
-    public RaopHandler(RaopPacket session, RaopSink.Sink sink) {
+    public RaopHandler(RaopPacket packet, RaopSink.Buffer sinkBuffer) {
         // Init instance var
-        this.session = session;
+        this.packet = packet;
 
         // Init functions
-        audioBuf = new RaopBuffer(session, this::requestResend);
-        this.initRTP();
-        player = new RaopSink(session, audioBuf, sink);
-        player.start();
+        audioBuffer = new RaopBuffer(packet, this::resendRequest);
+        this.initRtp();
+        sink = new RaopSink(packet, audioBuffer, sinkBuffer);
     }
 
     public void stop() {
-        player.stopThread();
-        l1.stopThread();
+        sink.stop();
+        server.stop();
         // l2.stopThread();
-        synchronized (sock) {
-            sock.close();
+        synchronized (socket) {
+            socket.close();
         }
-        csock.close();
+        controlSocket.close();
     }
 
     public void setVolume(double vol) {
-        player.setVolume(vol);
+        sink.setVolume(vol);
     }
 
     /**
      * Return the server port for the bonjour service
      */
     public int getServerPort() {
-        return sock.getLocalPort();
+        return socket.getLocalPort();
     }
 
     /**
      * Opens the sockets and begin listening
      */
-    private void initRTP() {
+    private void initRtp() {
         int port = 6000;
         while (true) {
             try {
-                sock = new DatagramSocket(port);
-                csock = new DatagramSocket(port + 1);
+                socket = new DatagramSocket(port);
+                controlSocket = new DatagramSocket(port + 1);
             } catch (IOException e) {
                 port = port + 2;
                 continue;
@@ -91,7 +92,7 @@ public class RaopHandler implements UdpHandler {
             break;
         }
 
-        l1 = new UdpServer(sock, this);
+        server = new UdpServer(socket, this);
     }
 
     /**
@@ -102,7 +103,7 @@ public class RaopHandler implements UdpHandler {
 
         int type = packet.getData()[1] & ~0x80;
         if (type == 0x60 || type == 0x56) { // audio data / resend
-            // Decale de 4 bytes supplementaires
+            // Shift of 4 additional bytes
             int off = 0;
             if (type == 0x56) {
                 off = 4;
@@ -117,7 +118,7 @@ public class RaopHandler implements UdpHandler {
                 pktp[i] = packet.getData()[i + 12 + off];
             }
 
-            audioBuf.putPacketInBuffer(seqno, pktp);
+            audioBuffer.putPacketInBuffer(seqno, pktp);
         }
     }
 
@@ -127,7 +128,7 @@ public class RaopHandler implements UdpHandler {
      * @param first
      * @param last
      */
-    private void requestResend(int first, int last) {
+    private void resendRequest(int first, int last) {
 logger.info("Resend Request: " + first + "::" + last);
         if (last < first) {
             return;
@@ -140,8 +141,8 @@ logger.info("Resend Request: " + first + "::" + last);
         };
 
         try {
-            DatagramPacket temp = new DatagramPacket(request, request.length, rtpClient, session.getControlPort());
-            csock.send(temp);
+            DatagramPacket temp = new DatagramPacket(request, request.length, rtpClient, packet.getControlPort());
+            controlSocket.send(temp);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -152,6 +153,6 @@ logger.info("Resend Request: " + first + "::" + last);
      * Flush the audioBuffer
      */
     public void flush() {
-        audioBuf.flush();
+        audioBuffer.flush();
     }
 }
