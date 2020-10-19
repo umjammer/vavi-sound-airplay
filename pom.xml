@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>vavi</groupId>
-  <artifactId>vavi-apps-rplay</artifactId>
+  <artifactId>vavi-net-airplay</artifactId>
   <version>0.0.4-SNAPSHOT</version>
 
   <build>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.2.9</version>
+      <version>0.3.0</version>
     </dependency>
 
     <dependency>

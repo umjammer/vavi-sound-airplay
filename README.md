@@ -1,4 +1,4 @@
-# vavi-sound-airplay
+# vavi-net-airplay
 
  * It emulates an Airport Express for the purpose of streaming music from iTunes and compatible iPods.
  * It implements a server for the Apple RAOP protocol.

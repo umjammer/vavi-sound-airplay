@@ -18,7 +18,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.beatofthedrum.alacdecoder.MyAlacDecodeUtils;
+import com.beatofthedrum.alacdecoder.Alac;
 
 
 /**
@@ -272,7 +272,7 @@ logger.info("Late packet with seq. numb.: " + seqno);
         }
 
         int outputsize = 0;
-        outputsize = MyAlacDecodeUtils.decodeFrame(session.getAlac(), packet, outbuffer, outputsize);
+        outputsize = Alac.decodeFrame(session.getFmtp(), packet, outbuffer, outputsize);
 
         assert outputsize == session.getFrameSize() * 4; // FRAME_BYTES length
 
