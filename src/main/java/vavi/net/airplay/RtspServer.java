@@ -155,6 +155,14 @@ System.err.println("service stopped.");
         try {
             // DNS Emitter (Bonjour)
             byte[] hwAddr = getHardwareAdress();
+logger.fine("hardware adress: " + hwAddr);
+            // You need a serial bogus to connect
+            if (hwAddr == null) {
+                hwAddr = new byte[6];
+                for (int i = 0; i < 6; i++) {
+                    hwAddr[i] = (byte) (Math.random() * 255);
+                }
+            }
 
             // Check if password is set
             mdns = new Bonjour(name, ByteUtil.toHexString(hwAddr), port, password != null);

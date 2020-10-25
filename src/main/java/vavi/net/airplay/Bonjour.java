@@ -42,14 +42,6 @@ public class Bonjour {
         txtRec.put("cn", "0,1");
         txtRec.put("vn", "3");
 
-        // Il faut un serial bidon pour se connecter
-        if (identifier == null) {
-            identifier = "";
-            for (int i = 0; i < 6; i++) {
-                identifier = identifier + Integer.toHexString((int) (Math.random() * 255)).toUpperCase();
-            }
-        }
-
         // Zeroconf registration
         ServiceInfo info = ServiceInfo
                 .create(identifier + "@" + name + "._raop._tcp.local", identifier + "@" + name, port, 0, 0, txtRec);
