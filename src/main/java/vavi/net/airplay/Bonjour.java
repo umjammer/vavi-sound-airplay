@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.JmmDNS;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.impl.JmmDNSImpl;
 import javax.jmdns.impl.NetworkTopologyEventImpl;
+
+import vavi.util.Debug;
 
 
 /**
@@ -45,6 +48,7 @@ public class Bonjour {
         // Zeroconf registration
         ServiceInfo info = ServiceInfo
                 .create(identifier + "@" + name + "._raop._tcp.local", identifier + "@" + name, port, 0, 0, txtRec);
+Debug.println(Level.FINE, info);
 
         mdns = JmmDNS.Factory.getInstance();
         ((JmmDNSImpl) mdns).inetAddressAdded(new NetworkTopologyEventImpl(JmDNS.create(InetAddress.getByName("localhost")),
@@ -59,6 +63,7 @@ public class Bonjour {
         }
 
         mdns.registerService(info);
+Debug.println(Level.FINE, "service registered");
     }
 
     /**

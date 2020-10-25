@@ -47,7 +47,7 @@ public class Test2 {
         t2(args);
     }
 
-    // by spi
+    /** by spi */
     static void t2(String[] args) throws Exception {
         // airplay
         Mixer mixer = AudioSystem.getMixer(AirPlayTargetDataLine.mixerInfo);
@@ -58,7 +58,7 @@ Debug.println(airplay.getLineInfo());
         airplay.start();
         AudioInputStream stream = new AudioInputStream(airplay);
 
-        // microphone
+        // speaker
         AudioFormat speakerFormat = airplay.getFormat();
         DataLine.Info speakerInfo = new DataLine.Info(SourceDataLine.class, speakerFormat);
 Debug.println(speakerInfo);
@@ -73,7 +73,7 @@ Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getTy
 //gainControl.setValue(dB);
         speaker.start();
 
-        byte[] buf = new byte[8196];
+        byte[] buf = new byte[airplay.getBufferSize()];
         while (true) {
             int r = stream.read(buf);
             if (r < 0) {
@@ -91,7 +91,7 @@ Debug.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stream end.");
         airplay.close();
     }
 
-    // direct
+    /** direct */
     static void t1(String[] args) throws Exception {
         // airplay
         AudioFormat airplayFormat = new AudioFormat(44100, 16, 2, true, true);
@@ -100,7 +100,7 @@ Debug.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stream end.");
         airplay.start();
         AudioInputStream stream = new AudioInputStream(airplay);
 
-        // microphone
+        // speakers
         AudioFormat speakerFormat = airplay.getFormat();
         DataLine.Info speakerInfo = new DataLine.Info(SourceDataLine.class, speakerFormat);
 Debug.println(speakerInfo);
@@ -111,7 +111,7 @@ Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getTy
         speaker.open(speakerFormat);
         speaker.start();
 
-        byte[] buf = new byte[8196];
+        byte[] buf = new byte[airplay.getBufferSize()];
         while (true) {
             int r = stream.read(buf);
             if (r < 0) {

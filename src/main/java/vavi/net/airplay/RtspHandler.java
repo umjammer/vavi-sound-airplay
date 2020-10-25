@@ -40,7 +40,7 @@ import vavi.util.ByteUtil;
  *
  * @author bencall
  */
-public class RtspHandler extends Thread {
+public class RtspHandler implements Runnable {
 
     private static Logger logger = Logger.getLogger(RtspHandler.class.getName());
 

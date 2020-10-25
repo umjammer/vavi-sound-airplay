@@ -131,7 +131,7 @@ public class RtspServer {
     }
 
     private void run() {
-logger.fine("starting service...");
+logger.fine("starting rtsp server...");
 
         // Setup safe shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -153,6 +153,8 @@ System.err.println("service stopped.");
         });
 
         try {
+            ExecutorService childExecutor = Executors.newCachedThreadPool();
+
             // DNS Emitter (Bonjour)
             byte[] hwAddr = getHardwareAdress();
 logger.fine("hardware adress: " + hwAddr);
@@ -195,15 +197,18 @@ logger.info("accepted connection from " + socket.toString());
                         handler = new RtspHandler(hwAddr, socket, password);
                     handler.setRaopSink(sink);
                     listeners.forEach(handler::addRtspListener);
-                    handler.start();
+                    childExecutor.submit(handler);
                 } catch (SocketTimeoutException e) {
                     //
                 }
             }
 
+            childExecutor.shutdown();
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-
+        } catch (Throwable t) {
+            t.printStackTrace();
         } finally {
             try {
                 mdns.stop();
@@ -212,6 +217,7 @@ logger.info("accepted connection from " + socket.toString());
                 e.printStackTrace();
             }
         }
+logger.fine("stoped rtsp server...");
     }
 
     public void stop() {

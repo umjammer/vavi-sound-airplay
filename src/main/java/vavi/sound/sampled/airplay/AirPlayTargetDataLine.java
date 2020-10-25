@@ -32,6 +32,8 @@ import vavi.util.Debug;
 /**
  * AirPlayTargetDataLine.
  *
+ * TODO connect default source data line automatically?
+ *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/16 umjammer initial version <br>
  */
