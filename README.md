@@ -1,3 +1,6 @@
+[![release](https://jitpack.io/v/umjammer/vavi-net-airplay.svg)](https://jitpack.io/#umjammer/vavi-net-airplay)
+
+
 # vavi-net-airplay
 
  * It emulates an Airport Express for the purpose of streaming music from iTunes and compatible iPods.
@@ -8,7 +11,7 @@ this project is a fork of [RPlay](https://github.com/bencall/RPlay) by Benjamin 
 
 ## Installation
 
-https://jitpack.io/#umjammer/vavi-sound-airplay
+https://jitpack.io/#umjammer/vavi-net-airplay
 
 ## Thanks
 
