@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-net-airplay</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4</version>
 
   <build>
     <plugins>
@@ -34,14 +34,14 @@
 
     <dependency>
       <groupId>com.github.umjammer</groupId>
-      <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.3.0</version>
+      <artifactId>vavi-sound-alac</artifactId>
+      <version>0.3.1</version>
     </dependency>
 
     <dependency>
-      <groupId>vavi</groupId>
+      <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.4-SNAPSHOT</version>
+      <version>1.1.4</version>
     </dependency>
 
     <dependency>

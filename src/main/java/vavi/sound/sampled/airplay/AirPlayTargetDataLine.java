@@ -62,6 +62,9 @@ public class AirPlayTargetDataLine implements TargetDataLine, Mixer {
     // 8196 is the best
     private int bufferSize = 8196;
 
+    /** the thread which executes buffer#take() */
+    private Thread blockingDequeThread;
+
     private BlockingDeque<Byte> buffer;
 
     private Buffer sink = new Buffer() {
@@ -107,6 +110,8 @@ if (!isAnnounced) {
     @Override
     public void stop() {
         // TODO stop something
+        blockingDequeThread.interrupt();
+
         isRunning = false;
         fireUpdate(new LineEvent(this, javax.sound.sampled.LineEvent.Type.STOP, -1));
     }
@@ -195,6 +200,8 @@ Debug.println(Level.FINE, "rtsp event type: " + r.getType());
         server.setRaopSink(sink);
 Debug.println(Level.FINE, "rtsp sink set: " + sink.getClass().getName());
         server.start();
+
+        blockingDequeThread = Thread.currentThread();
     }
 
     /* @see javax.sound.sampled.Line#close() */
@@ -261,7 +268,7 @@ Debug.println(Level.FINE, "rtsp sink set: " + sink.getClass().getName());
                 b[i] = buffer.take();
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+Debug.println("BlockingDeque#take() interrupted");
         }
         return i - off;
     }
