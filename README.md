@@ -11,7 +11,8 @@ this project is a fork of [RPlay](https://github.com/bencall/RPlay) by Benjamin 
 
 ## Installation
 
-https://jitpack.io/#umjammer/vavi-net-airplay
+ * maven: https://jitpack.io/#umjammer/vavi-net-airplay
+ * create key.pk8 from [sharport](https://github.com/albertz/shairport/blob/3892180dde4aefec7a97581d9beda8bee7f68fa8/shairport.c#L1156-L1178) and copy into your class path
 
 ## Thanks
 
