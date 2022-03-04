@@ -113,8 +113,8 @@ public class RaopBuffer {
 
     /**
      * Returns the next ready frame. If none, waiting for one
-     * 
-     * @return
+     *
+     * @return frame data
      */
     public int[] getNextFrame() {
         synchronized (lock) {

@@ -14,12 +14,10 @@ import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.Control;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
 import vavi.net.airplay.RaopSink.Buffer;
@@ -37,7 +35,7 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/16 umjammer initial version <br>
  */
-public class AirPlayTargetDataLine implements TargetDataLine, Mixer {
+public class AirPlayTargetDataLine implements TargetDataLine {
 
     public static javax.sound.sampled.DataLine.Info info =
             new javax.sound.sampled.DataLine.Info(AirPlayTargetDataLine.class,
@@ -141,28 +139,24 @@ if (!isAnnounced) {
         return available;
     }
 
-    /* @see javax.sound.sampled.DataLine#getFramePosition() */
     @Override
     public int getFramePosition() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.sampled.DataLine#getLongFramePosition() */
     @Override
     public long getLongFramePosition() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.sampled.DataLine#getMicrosecondPosition() */
     @Override
     public long getMicrosecondPosition() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.sampled.DataLine#getLevel() */
     @Override
     public float getLevel() {
         // TODO Auto-generated method stub
@@ -271,108 +265,6 @@ Debug.println(Level.FINE, "rtsp sink set: " + sink.getClass().getName());
 Debug.println("BlockingDeque#take() interrupted");
         }
         return i - off;
-    }
-
-    // mixer TODO i'm not sure mixer should wrap lines or can be this style
-
-    private static class Info extends Mixer.Info {
-        Info(String name, String vendor, String description, String version) {
-            super(name, vendor, description, version);
-        }
-    }
-
-    public static Mixer.Info mixerInfo = new Info(
-                   "AirPlay Mixer",
-                   "vavi",
-                   "Mixer for AirPlay",
-                   "0.0.1");
-
-    @Override
-    public javax.sound.sampled.Mixer.Info getMixerInfo() {
-        return mixerInfo;
-    }
-
-    @Override
-    public javax.sound.sampled.Line.Info[] getSourceLineInfo() {
-        return new javax.sound.sampled.Line.Info[0];
-    }
-
-    @Override
-    public javax.sound.sampled.Line.Info[] getTargetLineInfo() {
-        return new javax.sound.sampled.Line.Info[] { AirPlayTargetDataLine.info };
-    }
-
-    @Override
-    public javax.sound.sampled.Line.Info[] getSourceLineInfo(javax.sound.sampled.Line.Info info) {
-        return getSourceLineInfo();
-    }
-
-    @Override
-    public javax.sound.sampled.Line.Info[] getTargetLineInfo(javax.sound.sampled.Line.Info info) {
-        if (info == AirPlayTargetDataLine.info) {
-            return getTargetLineInfo();
-        } else {
-            return new javax.sound.sampled.Line.Info[0];
-        }
-    }
-
-    @Override
-    public boolean isLineSupported(javax.sound.sampled.Line.Info info) {
-        return info == AirPlayTargetDataLine.info;
-    }
-
-    @Override
-    public Line getLine(javax.sound.sampled.Line.Info info) throws LineUnavailableException {
-        if (info == AirPlayTargetDataLine.info) {
-            return this;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public int getMaxLines(javax.sound.sampled.Line.Info info) {
-        if (info == AirPlayTargetDataLine.info) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    @Override
-    public Line[] getSourceLines() {
-        // TODO should return default source data line?
-        return new Line[0];
-    }
-
-    @Override
-    public Line[] getTargetLines() {
-        if (this.isOpen) {
-            return new Line[] { this };
-        } else {
-            return new Line[0];
-        }
-    }
-
-    /* @see javax.sound.sampled.Mixer#synchronize(javax.sound.sampled.Line[], boolean) */
-    @Override
-    public void synchronize(Line[] lines, boolean maintainSync) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* @see javax.sound.sampled.Mixer#unsynchronize(javax.sound.sampled.Line[]) */
-    @Override
-    public void unsynchronize(Line[] lines) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* @see javax.sound.sampled.Mixer#isSynchronizationSupported(javax.sound.sampled.Line[], boolean) */
-    @Override
-    public boolean isSynchronizationSupported(Line[] lines, boolean maintainSync) {
-        // TODO Auto-generated method stub
-        return false;
     }
 }
 

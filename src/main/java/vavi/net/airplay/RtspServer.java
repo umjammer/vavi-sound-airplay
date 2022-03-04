@@ -157,7 +157,7 @@ System.err.println("service stopped.");
 
             // DNS Emitter (Bonjour)
             byte[] hwAddr = getHardwareAdress();
-logger.fine("hardware adress: " + hwAddr);
+logger.fine("hardware adress: " + Arrays.toString(hwAddr));
             // You need a serial bogus to connect
             if (hwAddr == null) {
                 hwAddr = new byte[6];
