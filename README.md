@@ -14,6 +14,11 @@ this project is a fork of [RPlay](https://github.com/bencall/RPlay) by Benjamin 
  * maven: https://jitpack.io/#umjammer/vavi-net-airplay
  * create key.pk8 from [sharport](https://github.com/albertz/shairport/blob/3892180dde4aefec7a97581d9beda8bee7f68fa8/shairport.c#L1156-L1178) and copy into your class path
 
+```shell
+ $ openssl pkcs8 -topk8 -inform PEM -outform DER -nocrypt -in key.pem -out key.pk8
+ $ cp key.pk8 src/test/resources
+```
+
 ## Thanks
 
  * Big thanks to David Hammerton for releasing an ALAC decoder and to soiaf for porting it to Java (https://github.com/soiaf/Java-Apple-Lossless-decoder).
@@ -27,8 +32,8 @@ These libraries are included in RPlay:
  * ~~http://www.bouncycastle.org/latest_releases.html~~
  * ~~http://commons.apache.org/~~
  * https://github.com/albertz/shairport
- * https://github.com/soiaf/Java-Apple-Lossless-decoder
- * http://jmdns.sourceforge.net
+ * ~~https://github.com/soiaf/Java-Apple-Lossless-decoder~~ https://github.com/umjammer/vavi-sound-alac
+ * ~~http://jmdns.sourceforge.net~~ https://github.com/jmdns/jmdns
 
 ## Contributors
 
