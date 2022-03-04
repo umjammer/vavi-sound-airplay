@@ -17,8 +17,11 @@ import javax.sound.sampled.TargetDataLine;
 import org.junit.jupiter.api.Test;
 
 import vavi.net.airplay.RtspServer;
+import vavi.sound.sampled.airplay.AirPlayMixer;
 import vavi.sound.sampled.airplay.AirPlayTargetDataLine;
 import vavi.util.Debug;
+
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -50,9 +53,9 @@ public class Test2 {
     /** by spi */
     static void t2(String[] args) throws Exception {
         // airplay
-        Mixer mixer = AudioSystem.getMixer(AirPlayTargetDataLine.mixerInfo);
+        Mixer mixer = AudioSystem.getMixer(AirPlayMixer.mixerInfo);
 Debug.println(mixer.getMixerInfo());
-        TargetDataLine airplay = (TargetDataLine) mixer.getLine(AirPlayTargetDataLine.info);
+        TargetDataLine airplay = (TargetDataLine) mixer.getLine(mixer.getLineInfo());
 Debug.println(airplay.getLineInfo());
         airplay.open();
         airplay.start();
@@ -67,10 +70,7 @@ Debug.println(speakerInfo);
 Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getType() + ".");
         });
         speaker.open(speakerFormat);
-//FloatControl gainControl = (FloatControl) speaker.getControl(FloatControl.Type.MASTER_GAIN);
-//double gain = .2d; // number between 0 and 1 (loudest)
-//float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-//gainControl.setValue(dB);
+        volume(speaker, .2d);
         speaker.start();
 
         byte[] buf = new byte[airplay.getBufferSize()];

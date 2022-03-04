@@ -25,14 +25,14 @@ public class AirPlayMixerProvider extends MixerProvider {
 
     @Override
     public Info[] getMixerInfo() {
-        return new Info[] { AirPlayTargetDataLine.mixerInfo };
+        return new Info[] { AirPlayMixer.mixerInfo };
     }
 
     @Override
     public Mixer getMixer(Info info) {
-        if (info == AirPlayTargetDataLine.mixerInfo) {
+        if (info == AirPlayMixer.mixerInfo) {
 Debug.println(Level.FINE, "★1 info: " + info);
-            AirPlayTargetDataLine mixer = new AirPlayTargetDataLine();
+            AirPlayMixer mixer = new AirPlayMixer();
             return mixer;
         } else {
 Debug.println(Level.FINE, "not suitable for this provider: " + info);

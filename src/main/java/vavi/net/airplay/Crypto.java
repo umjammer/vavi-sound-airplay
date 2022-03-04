@@ -44,6 +44,8 @@ public class Crypto {
             byte[] buf = new byte[is.available()];
             is.readFully(buf);
             key = KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(buf));
+        } catch (NullPointerException e) {
+            throw new IllegalStateException("key.pk8 might not be found", e);
         } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
