@@ -5,6 +5,8 @@
 
 # vavi-net-airplay
 
+<img src="https://user-images.githubusercontent.com/493908/194700385-798943fc-1cef-433f-a2ba-255bc5df4721.jpg" width="120"/>
+
  * It emulates an Airport Express for the purpose of streaming music from iTunes and compatible iPods.
  * It implements a server for the Apple RAOP protocol.
  * **Now it works as `javax.sound.sampled.spi`!**
