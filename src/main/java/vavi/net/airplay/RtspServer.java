@@ -56,7 +56,7 @@ public class RtspServer {
         enum EventType implements Type {
             MDNS_ANNOUNCED,
             SERVER_CLOSE,
-            CONNECTION_ENDED;
+            CONNECTION_ENDED
         }
         enum RequestType implements Type {
             ANNOUNCE,
@@ -69,7 +69,7 @@ public class RtspServer {
             GET_PARAMETER,
             SET_PARAMETER;
             public static String list() {
-                return String.join(", ", Arrays.stream(values()).map(e -> e.toString()).toArray(String[]::new));
+                return String.join(", ", Arrays.stream(values()).map(Enum::toString).toArray(String[]::new));
             }
         }
         void update(RtspEvent request);
@@ -134,23 +134,20 @@ public class RtspServer {
 logger.fine("starting rtsp server...");
 
         // Setup safe shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 System.err.println("shutting down...");
 
-                RtspServer.this.stop();
+            RtspServer.this.stop();
 
-                try {
-                    RtspServer.this.mdns.stop();
-                    RtspServer.this.serverSocket.close();
+            try {
+                RtspServer.this.mdns.stop();
+                RtspServer.this.serverSocket.close();
 
 System.err.println("service stopped.");
-                } catch (IOException e) {
-                    //
-                }
+            } catch (IOException e) {
+                //
             }
-        });
+        }));
 
         try {
             ExecutorService childExecutor = Executors.newCachedThreadPool();

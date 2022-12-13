@@ -179,7 +179,7 @@ try {
                     String[] temp = m.group(2).split(" ");
                     fmtp = new int[temp.length];
                     for (int i = 0; i < temp.length; i++) {
-                        fmtp[i] = Integer.valueOf(temp[i]);
+                        fmtp[i] = Integer.parseInt(temp[i]);
                     }
 
                 } else if (m.group(1).contentEquals("rsaaeskey")) {
@@ -198,13 +198,13 @@ try {
             // Control port
             m = controlPattern.matcher(value);
             if (m.find()) {
-                controlPort = Integer.valueOf(m.group(1));
+                controlPort = Integer.parseInt(m.group(1));
             }
 
             // Timing port
             m = timingPattern.matcher(value);
             if (m.find()) {
-                timingPort = Integer.valueOf(m.group(1));
+                timingPort = Integer.parseInt(m.group(1));
             }
 
             // Launching audioserver
@@ -321,8 +321,8 @@ e.printStackTrace();
             do {
 logger.fine("listening packets ... ");
                 // feed buffer until packet completed
-                StringBuffer packet = new StringBuffer();
-                int ret = 0;
+                StringBuilder packet = new StringBuilder();
+                int ret;
                 do {
                     char[] buffer = new char[4096];
                     ret = in.read(buffer);

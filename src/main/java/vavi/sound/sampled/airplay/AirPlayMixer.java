@@ -104,7 +104,7 @@ public class AirPlayMixer implements Mixer {
 
     @Override
     public void open() throws LineUnavailableException {
-        line.open();;
+        line.open();
     }
 
     @Override

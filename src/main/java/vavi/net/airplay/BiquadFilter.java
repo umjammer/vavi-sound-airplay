@@ -42,7 +42,7 @@ public class BiquadFilter {
     // local clock is slower by
     private double estDrift = 0.0;
     private Biquad driftLpf;
-    private double estErr = 0.0, lastErr;
+    private double estErr, lastErr;
     private Biquad errLpf, errDerivLpf;
     private double desiredFill;
     private int fillCount;
@@ -53,7 +53,6 @@ public class BiquadFilter {
         driftLpf = new Biquad(1.0 / 180.0, 0.3, samplingRate, frameSize);
         errLpf = new Biquad(1.0 / 10.0, 0.25, samplingRate, frameSize);
         errDerivLpf = new Biquad(1.0 / 2.0, 0.2, samplingRate, frameSize);
-        fillCount = 0;
         playbackRate = 1.0;
         estErr = 0;
         lastErr = 0;

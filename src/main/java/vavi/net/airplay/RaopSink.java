@@ -50,9 +50,9 @@ public class RaopSink {
             byte[] input = new byte[outbuf.length * 2];
 
             int j = 0;
-            for (int i = 0; i < outbuf.length; i++) {
-                input[j++] = (byte) (outbuf[i] >> 8);
-                input[j++] = (byte) (outbuf[i]);
+            for (int value : outbuf) {
+                input[j++] = (byte) (value >> 8);
+                input[j++] = (byte) value;
             }
 
             sinkBuffer.write(input, 0, k * 4);
