@@ -36,7 +36,7 @@ import vavi.util.ByteUtil;
 
 
 /**
- * An primitive RTSP responder for replying iTunes
+ * A primitive RTSP responder for replying iTunes
  *
  * @author bencall
  */
@@ -157,7 +157,7 @@ public class RtspHandler implements Runnable {
 
 logger.fine("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexString(hwAddr));
             // Write
-            response.addHeader("Apple-Response", getChallengeResponce(challenge, ip, hwAddr));
+            response.addHeader("Apple-Response", getChallengeResponse(challenge, ip, hwAddr));
 //        } else {
 //logger.info("challenge is null");
         }
@@ -265,7 +265,7 @@ try {
      * @return hash string
      */
     private static String md5Hash(String plaintext) {
-        String hashtext = "";
+        StringBuilder hashtext = new StringBuilder();
 
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -273,22 +273,22 @@ try {
             byte[] digest = md.digest();
 
             BigInteger bigInt = new BigInteger(1, digest);
-            hashtext = bigInt.toString(16);
+            hashtext = new StringBuilder(bigInt.toString(16));
 
             // Now we need to zero pad it if you actually want the full 32
             // chars.
             while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+                hashtext.insert(0, "0");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
-        return hashtext;
+        return hashtext.toString();
     }
 
     /** */
-    private String getChallengeResponce(String challenge, byte[] ip, byte[] hwAddr) {
+    private String getChallengeResponse(String challenge, byte[] ip, byte[] hwAddr) {
         try {
             return crypto.getChallengeResponce(challenge, ip, hwAddr);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -301,7 +301,7 @@ e.printStackTrace();
      * Decrypts with RSA priv key.
      *
      * @param array
-     * @return
+     * @return null when description failure
      */
     private byte[] decryptRSA(byte[] array) {
         try {

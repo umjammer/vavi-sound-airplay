@@ -7,6 +7,7 @@ package vavi.net.airplay;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
@@ -154,7 +155,7 @@ logger.info("re-starting");
 logger.info("Overrun!!! Too much frames in buffer!");
                 readIndex = writeIndex - START_FILL;
             }
-            // we get the value before the unlock ;-)
+            // we get the value before to unlock ;-)
             int read = readIndex;
             readIndex++;
 
@@ -171,13 +172,11 @@ logger.info("Overrun!!! Too much frames in buffer!");
             if (!buf.ready) {
 logger.info("Missing Frame!");
                 // Set to zero then
-                for (int i = 0; i < buf.data.length; i++) {
-                    buf.data[i] = 0;
-                }
+                Arrays.fill(buf.data, 0);
             }
             buf.ready = false;
 
-            // SEQNO is stored in a short an come back to 0 when equal to 65536
+            // SEQNO is stored in a short a come back to 0 when equal to 65536
             // (2 bytes)
             if (readIndex == 65536) {
                 readIndex = 0;
@@ -239,7 +238,7 @@ logger.info("Late packet with seq. numb.: " + seqno);
                 lock.notify();
             }
 
-            // SEQNO is stored in a short an come back to 0 when equal to 65536
+            // SEQNO is stored in a short a come back to 0 when equal to 65536
             // (2 bytes)
             if (writeIndex == 65536) {
                 writeIndex = 0;
@@ -250,9 +249,9 @@ logger.info("Late packet with seq. numb.: " + seqno);
     /**
      * Decrypt and decode the packet.
      *
-     * @param data
+     * @param data packet
      * @param outbuffer the result
-     * @return
+     * @return decoded size
      */
     private int decodeAlac(byte[] data, int[] outbuffer) {
         byte[] packet = new byte[MAX_PACKET];
@@ -267,9 +266,7 @@ logger.info("Late packet with seq. numb.: " + seqno);
         }
 
         // The rest of the packet is unencrypted
-        for (int k = 0; k < (data.length % 16); k++) {
-            packet[i + k] = data[i + k];
-        }
+        System.arraycopy(data, i, packet, i, data.length % 16);
 
         int outputsize = 0;
         outputsize = Alac.decodeFrame(session.getFmtp(), packet, outbuffer, outputsize);

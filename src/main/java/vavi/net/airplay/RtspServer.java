@@ -214,7 +214,7 @@ logger.info("accepted connection from " + socket.toString());
                 e.printStackTrace();
             }
         }
-logger.fine("stoped rtsp server...");
+logger.fine("stopped rtsp server...");
     }
 
     public void stop() {

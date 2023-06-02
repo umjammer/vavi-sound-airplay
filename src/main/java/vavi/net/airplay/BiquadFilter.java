@@ -6,7 +6,7 @@ package vavi.net.airplay;
 
 
 /**
- * Implementation of the biquad filter. Not sure it is correct
+ * Implementation of the biquad filter. Not sure if it is correct
  *
  * @author bencall
  */

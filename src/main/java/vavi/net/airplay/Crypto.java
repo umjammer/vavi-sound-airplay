@@ -92,7 +92,7 @@ public class Crypto {
         return ret.replace("=", "").replace("\r", "").replace("\n", "");
     }
 
-    /* */
+    /** */
     public byte[] encrypt(byte[] array) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         encryptionCipher.init(Cipher.ENCRYPT_MODE, key);
         return encryptionCipher.doFinal(array);
