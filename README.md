@@ -1,9 +1,9 @@
-[![release](https://jitpack.io/v/umjammer/vavi-net-airplay.svg)](https://jitpack.io/#umjammer/vavi-net-airplay)
-[![Java CI](https://github.com/umjammer/vavi-net-airplay/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-net-airplay/actions/workflows/maven.yml)
-[![CodeQL](https://github.com/umjammer/vavi-net-airplay/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-net-airplay/actions/workflows/codeql-analysis.yml)
+[![release](https://jitpack.io/v/umjammer/vavi-sound-airplay.svg)](https://jitpack.io/#umjammer/vavi-sound-airplay)
+[![Java CI](https://github.com/umjammer/vavi-sound-airplay/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-airplay/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/umjammer/vavi-sound-airplay/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-sound-airplay/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-8-b07219)
 
-# vavi-net-airplay
+# vavi-sound-airplay
 
 <img src="https://user-images.githubusercontent.com/493908/194700385-798943fc-1cef-433f-a2ba-255bc5df4721.jpg" width="120"/><sub>© <a href="https://www.apple.com/airplay/">Apple</a></sub>
 
@@ -15,7 +15,7 @@ this project is a fork of [RPlay](https://github.com/bencall/RPlay) by Benjamin 
 
 ## Installation
 
- * maven: https://jitpack.io/#umjammer/vavi-net-airplay
+ * maven: https://jitpack.io/#umjammer/vavi-sound-airplay
  * create key.pk8 from [sharport](https://github.com/albertz/shairport/blob/3892180dde4aefec7a97581d9beda8bee7f68fa8/shairport.c#L1156-L1178) and copy into your class path
 
 ```shell
