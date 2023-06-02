@@ -1,4 +1,4 @@
-Copyright (c) 2011 benjamin de Callataÿ
+Copyright (c) 2011 benjamin de Callata√ø
 
 Based on shairport - Copyright (c) 2011 James Laird
 

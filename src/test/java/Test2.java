@@ -34,7 +34,7 @@ public class Test2 {
 
     @Test
     void test() throws Exception {
-        System.err.println(String.join(", ", Arrays.stream(RtspServer.RtspListener.RequestType.values()).map(e -> e.toString()).toArray(String[]::new)));
+        System.err.println(String.join(", ", Arrays.stream(RtspServer.RtspListener.RequestType.values()).map(Enum::toString).toArray(String[]::new)));
     }
 
     @Test
@@ -66,9 +66,7 @@ Debug.println(airplay.getLineInfo());
         DataLine.Info speakerInfo = new DataLine.Info(SourceDataLine.class, speakerFormat);
 Debug.println(speakerInfo);
         SourceDataLine speaker = (SourceDataLine) AudioSystem.getLine(speakerInfo);
-        speaker.addLineListener(e -> {
-Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getType() + ".");
-        });
+        speaker.addLineListener(e -> Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getType() + "."));
         speaker.open(speakerFormat);
         volume(speaker, .2d);
         speaker.start();
@@ -105,9 +103,7 @@ Debug.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX stream end.");
         DataLine.Info speakerInfo = new DataLine.Info(SourceDataLine.class, speakerFormat);
 Debug.println(speakerInfo);
         SourceDataLine speaker = (SourceDataLine) AudioSystem.getLine(speakerInfo);
-        speaker.addLineListener(e -> {
-Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getType() + ".");
-        });
+        speaker.addLineListener(e -> Debug.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ line " + e.getType() + "."));
         speaker.open(speakerFormat);
         speaker.start();
 

@@ -36,7 +36,7 @@ import vavi.util.ByteUtil;
 
 
 /**
- * An primitive RTSP responder for replying iTunes
+ * A primitive RTSP responder for replying iTunes
  *
  * @author bencall
  */
@@ -157,7 +157,7 @@ public class RtspHandler implements Runnable {
 
 logger.fine("challenge: " + ByteUtil.toHexString(ip) + ", " + ByteUtil.toHexString(hwAddr));
             // Write
-            response.addHeader("Apple-Response", getChallengeResponce(challenge, ip, hwAddr));
+            response.addHeader("Apple-Response", getChallengeResponse(challenge, ip, hwAddr));
 //        } else {
 //logger.info("challenge is null");
         }
@@ -179,7 +179,7 @@ try {
                     String[] temp = m.group(2).split(" ");
                     fmtp = new int[temp.length];
                     for (int i = 0; i < temp.length; i++) {
-                        fmtp[i] = Integer.valueOf(temp[i]);
+                        fmtp[i] = Integer.parseInt(temp[i]);
                     }
 
                 } else if (m.group(1).contentEquals("rsaaeskey")) {
@@ -198,13 +198,13 @@ try {
             // Control port
             m = controlPattern.matcher(value);
             if (m.find()) {
-                controlPort = Integer.valueOf(m.group(1));
+                controlPort = Integer.parseInt(m.group(1));
             }
 
             // Timing port
             m = timingPattern.matcher(value);
             if (m.find()) {
-                timingPort = Integer.valueOf(m.group(1));
+                timingPort = Integer.parseInt(m.group(1));
             }
 
             // Launching audioserver
@@ -265,7 +265,7 @@ try {
      * @return hash string
      */
     private static String md5Hash(String plaintext) {
-        String hashtext = "";
+        StringBuilder hashtext = new StringBuilder();
 
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -273,22 +273,22 @@ try {
             byte[] digest = md.digest();
 
             BigInteger bigInt = new BigInteger(1, digest);
-            hashtext = bigInt.toString(16);
+            hashtext = new StringBuilder(bigInt.toString(16));
 
             // Now we need to zero pad it if you actually want the full 32
             // chars.
             while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+                hashtext.insert(0, "0");
             }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
-        return hashtext;
+        return hashtext.toString();
     }
 
     /** */
-    private String getChallengeResponce(String challenge, byte[] ip, byte[] hwAddr) {
+    private String getChallengeResponse(String challenge, byte[] ip, byte[] hwAddr) {
         try {
             return crypto.getChallengeResponce(challenge, ip, hwAddr);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
@@ -301,7 +301,7 @@ e.printStackTrace();
      * Decrypts with RSA priv key.
      *
      * @param array
-     * @return
+     * @return null when description failure
      */
     private byte[] decryptRSA(byte[] array) {
         try {
@@ -321,8 +321,8 @@ e.printStackTrace();
             do {
 logger.fine("listening packets ... ");
                 // feed buffer until packet completed
-                StringBuffer packet = new StringBuffer();
-                int ret = 0;
+                StringBuilder packet = new StringBuilder();
+                int ret;
                 do {
                     char[] buffer = new char[4096];
                     ret = in.read(buffer);

@@ -13,11 +13,11 @@ public class RtspResponse {
     private StringBuilder response = new StringBuilder();
 
     public RtspResponse(String firstLine) {
-        response.append(firstLine + "\r\n");
+        response.append(firstLine).append("\r\n");
     }
 
     public void addHeader(String key, String value) {
-        response.append(key + ": " + value + "\r\n");
+        response.append(key).append(": ").append(value).append("\r\n");
     }
 
     /**

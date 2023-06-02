@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Extract informations from RTSP Header
+ * Extract information from RTSP Header
  *
  * @author bencall
  */

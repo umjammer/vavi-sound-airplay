@@ -22,9 +22,9 @@ public class UdpServer {
         void packetReceived(DatagramSocket socket, DatagramPacket packet);
     }
 
-    // Constantes
+    // Constants
     public static final int MAX_PACKET = 2048;
-    // Variables d'instances
+    // Instance variables
     private DatagramSocket socket;
     private UdpHandler handler;
     private boolean stopThread = false;
